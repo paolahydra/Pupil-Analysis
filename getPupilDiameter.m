@@ -12,6 +12,8 @@ im4 = bwareafilt(im4,[20 1e5]);
 se2 = strel(ones(openPix,openPix));
 se3 = strel(ones(erodePix,erodePix));
 imOpen = imopen(im4, se2);
+imOpen = imclose(imOpen, strel(ones(openPix,200)));
+imOpen = imfill(imOpen,'holes');
 Ie2 = imcomplement(imerode(imOpen, se3));
 
 minRad = 6;

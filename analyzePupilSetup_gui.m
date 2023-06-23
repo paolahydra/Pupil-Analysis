@@ -87,7 +87,8 @@ cla;
 
 popup_sel_index = get(handles.popupmenu1, 'Value');
 f = handles.fnamelist;
-filename = cell2mat(f(popup_sel_index));
+% filename = cell2mat(f(popup_sel_index));
+global filename
 obj = VideoReader(filename); %create video object for selected filename
 
 %Read video frame and get coordinates for eye ROI

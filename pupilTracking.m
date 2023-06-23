@@ -1,5 +1,12 @@
+% % pupil analysis PP
+% clear all
+% close all
+% filename = 'D:\SNeurobiology\Documents\paola\GitHub\motionAmplification\testVideo1_m335_230607\cut.mp4';
+% pupilTracking(filename)
 
-function pupilTracking(filename,parameters)
+
+
+function pupilTracking(filename)
 
 % November 29, 2017 AK: This is the most recent version of program to
 % analyze the pupil diameter from videos of a mouse eye. Before running
@@ -18,32 +25,43 @@ function pupilTracking(filename,parameters)
 %to select parameters.
 
 %Setup global variables
-global nFrames cLast pupilDiameter pupilPos frame xROI yROI colInvert adjContrast
-    
-if nargin == 1 %If no parameters variable give, run the 'setup' analysis
-    analyzePupilSetup_gui
-else
+
+% if nargin == 1 %If no parameters variable give, run the 'setup' analysis
+%     analyzePupilSetup_gui
+% else
+    %Loading video file
+    [vidobj,nFrames] = createVidObj(filename);
+    h = setupFig();
+
     pupilDiameter = nan(1,nFrames);
     pupilPos = nan(2,nFrames);
     IRledSignal = nan(1,nFrames);
     cLast = nan(1,2);
-    frame = 1;
+    frame = 0;
     
     %Remove any filename extension if exists
     if isequal(filename(end-3),'.')
         filename = filename(1:end-4);
     end
+    paramname = sprintf('%s.mat',filename);
     
     %Load global parameter values set in the "analyzePupilSetup" GUI
     %load([filename '.mat'])
-    loadParams(parameters)
+
+    parameters = loadParams(paramname);
+    numThresh = parameters.numThresh;
+    openPix = parameters.openPix;
+    erodePix = parameters.erodePix;
+    sens = parameters.sens;
+    nFrames = parameters.nFrames;
+    colInvert = parameters.colInvert;
+    adjContrast = 0;  %parameters.adjContrast;
+    xROI = parameters.xROI;
+    yROI = parameters.yROI;
     
-    %Loading video file
-    [vidobj,nFrames] = createVidObj(filename);
-    h = setupFig();
     while hasFrame(vidobj)
         
-        percCounter(frame,1,nFrames) %Keeps track of progress
+%         percCounter(frame,1,nFrames) %Keeps track of progress
         
         %Read video frame and get coordinates for eye ROI
         frame = frame+1;
@@ -82,23 +100,24 @@ else
     %Save necessary variables for further analysis
     save([filename,'.mat'],'IRledSignal','pupilDiameter','pupilDiameter2','pupilDiameter3','-append')
     
-end
+% end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    function loadParams(parameters)
-        numThresh = parameters.numThresh;
-        openPix = parameters.openPix;
-        erodePix = parameters.erodePix;
-        sens = parameters.sens;
-        nFrames = parameters.nFrames;
-        colInvert = parameters.colInvert;
-        adjContrast = parameters.adjContrast;
-        xROI = parameters.xROI;
-        yROI = parameters.yROI;
+    function parameters = loadParams(paramname)
+        load(paramname)
+%         numThresh = parameters.numThresh;
+%         openPix = parameters.openPix;
+%         erodePix = parameters.erodePix;
+%         sens = parameters.sens;
+%         nFrames = parameters.nFrames;
+%         colInvert = parameters.colInvert;
+%         adjContrast = parameters.adjContrast;
+%         xROI = parameters.xROI;
+%         yROI = parameters.yROI;
     end
     function [obj,n] = createVidObj(f)
-        v = sprintf('%s',f,'.mp4');
+        v = sprintf('%s',f);
         disp('Loading video file...')
         obj = VideoReader(v);
         
